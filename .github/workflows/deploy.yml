@@ -10,28 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-    - name: Set up Google Cloud
-      uses: google-github-actions/setup-gcloud@v1
-      with:
-        project_id: lab-docker-cloud
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
+      - name: Autenticación con Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Configure Docker
-      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+      - name: Configurar gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: lab-docker-cloud
 
-    - name: Build and push image
-      run: |
-        gcloud auth configure-docker us-central1-docker.pkg.dev
-        docker build -t us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker .
-        docker push us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker
+      - name: Configurar Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
-    - name: Deploy to Cloud Run
-      run: |
-        gcloud run deploy mi-app \
-          --image us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker \
-          --region us-central1 \
-          --platform managed \
-          --allow-unauthenticated
+      - name: Build y Push
+        run: |
+          docker build -t us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker .
+          docker push us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker
+
+      - name: Deploy a Cloud Run
+        run: |
+          gcloud run deploy mi-app \
+            --image us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated
