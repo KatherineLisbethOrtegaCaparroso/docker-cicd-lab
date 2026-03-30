@@ -20,10 +20,11 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
 
     - name: Configure Docker
-      run: gcloud auth configure-docker
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
     - name: Build and push image
       run: |
+        gcloud auth configure-docker us-central1-docker.pkg.dev
         docker build -t us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker .
         docker push us-central1-docker.pkg.dev/lab-docker-cloud/docker-repo/mi-app-docker
 
